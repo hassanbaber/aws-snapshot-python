@@ -11,4 +11,8 @@ shotty uses config
 
 ## running
 
-'pipenv run  "python shotty/shotty.py"'
+'pipenv run  "python shotty/shotty.py"
+<--project=Project>'
+
+*command* is list, start, stop
+*project* is optional
