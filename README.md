@@ -14,5 +14,6 @@ shotty uses config
 'pipenv run  "python shotty/shotty.py"
 <--project=Project>'
 
-*command* is list, start, stop
+*command* is instances, volumes or snapshots
+*sub_command* is list, stop, start, create snaphsot
 *project* is optional
