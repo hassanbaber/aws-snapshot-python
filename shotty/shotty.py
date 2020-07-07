@@ -17,13 +17,13 @@ def filter_instances(project):
 @click.group()
 def cli():
 
-    """snapshot management"""
+    """Snapshot management"""
     
-    
+#snapshot section of click    
 @cli.group('snapshots')
 def snapshots():
 
-    """snapshot management"""
+    """Snapshot management of EC2 instances"""
 
 @snapshots.command('list')
 @click.option('--project',default=None, help="list snapshots of all instances")
@@ -43,7 +43,22 @@ def list_snapshots(project):
                 )))
 
     return
-  
+    
+@snapshots.command('delete', help="Deletes snapshot of all volumes")
+@click.option("--project", default=None, help="Only instances with project tag")
+
+def delete_snapshot(project):
+    "Delete snapshots of EC2 instances"
+    instances = filter_instances(project)
+    for i in instances:
+        for v in i.volumes.all():
+            for s in v.snapshots.all():
+                print("Deleting snapshot {0}".format(s.id))
+                s.delete()
+    return
+    
+
+#volumes section of click
 @cli.group('volumes')
 
 def volumes():
@@ -69,24 +84,29 @@ def list_volumes(project):
     
 
 
-
-
-
+#instances section 
 
 @cli.group('instances')
 def instances():
     """Commands for instances"""
 
-@instances.command('shapshot', help="Create snapshot of all volumes")
+@instances.command('snapshot', help="Create snapshot of all volumes, stops EC2 instance before snapshot")
 @click.option("--project",default=None, help="only instances with project tags")
 def create_snapshots(project):
     "Create snaphsots of ec2 instances"
     instances = filter_instances(project)
     for i in instances:
+        print("Stoping {0}, before taking snapshot of volume....".format(i.id))
         i.stop()
+        i.wait_until_stopped()
         for v in i.volumes.all():
-            print("Creating snapshot fo {0}".format(v.id))
+            print("Creating snapshot of {0}...".format(v.id))
             v.create_snapshot(Description="created by snapshotalyzer 30000")
+        print("starting {0}...".format(i.id))
+        
+        i.start()
+        i.wait_until_running()
+    print("Job's done!")
     return
     
 @instances.command('list')
